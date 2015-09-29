@@ -1,0 +1,139 @@
+---
+title: "Practica 1"
+author: "Víctor de Juan"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+---
+
+```R
+head(iris)
+datos <- iris[1:50,-5]
+plot(pairs(datos))
+```
+
+
+**1 - Calcula el vector de medias muestral y las matrices de covarianzas y de correlaciones (cor) muestrales. ¿Entre qué par de variables es más alta la correlación? ¿Qué variable tiene la mayor varianza?**
+
+```{r}
+datos <- iris[1:50,-5]
+µ1 = colMeans(datos)
+σ1 = cov(datos)
+corest = cor(datos)
+```
+
+La correlación más alta es la de la anchura del sépalo con respecto de la longitud del sépalo, como podemos ver en la matriz de correlaciones ($\sigma_{12}$).
+
+```{r}
+print(corest)
+```
+
+
+La mayor varianza corresponde al valor más alto de la diagonal. Es la anchura del sépalo la que toma este valor, como podemos ver en la diagonal.
+
+```{r}
+print(diag(σ1))
+```
+
+**2. Calcula las distancias de Mahalanobis entre cada uno de los lirios y el vector de medias. Representa los datos, usando el color rojo para el 25 % de los lirios más lejanos al vector de medias.**
+
+El 25% de los lirios más lejanos al vector de medias son aquellos cuya distancia de mahalanobis es mayor que el tercer quantil.
+
+Lo primero es calcular la distancia de mahalanobis:
+```{r}
+distancias <- mahalanobis(datos, µ1, σ1)
+```
+Y el tercer quantil del vector de distancias:
+```{r}
+q3 = quantile(distancias)[4]
+```
+Por último, pintamos en rojo aquellos datos que sean mayores que el quantil.
+```{r}
+plot(x = datos, col=ifelse(distancias>q3,'red','black'),pch="#")
+```
+
+*La función ifelse recorre el vector lógico que devuelve la comparación $distancias > q3$ devolviendo 'red' en caso de encontrar TRUE o 'black' en caso contrario. Estos valores se almacenan como un vector, que utilizamos para colorear gráfico*
+
+**3. Representa un histograma de las distancias y compáralo con la funcion de densidad de una variable $\chi^2$ con 4 grados de libertad.**
+
+Comparamos la diferencia, dependiendo de las barras de histograma elegidas:
+
+```{r}
+hist(distancias, breaks = 8, freq=FALSE)
+curve( dchisq(x, df=4), col='blue', add=TRUE)
+```
+
+```{r}
+hist(distancias, breaks = 16, freq=FALSE)
+curve( dchisq(x, df=4), col='blue', add=TRUE)
+```
+
+En el caso de 8 breaks, parece que el ajuste es mejor. En cambio, cuando elegimos 16 breaks, se producen algunas situaciones atípicas, como el pico al final del vector, de los lirios que están a una distancia de mahalanobis mayor de 12. 
+
+Esto puede deberse a que en un vector de 50 elementos, representar el histograma de frecuencias con 16 breaks es demasiado. Si llevamos el caso al extremo, observamos más la diferencia.
+
+```{r}
+hist(distancias, breaks = 50, freq=FALSE)
+curve( dchisq(x, df=4), col='blue', add=TRUE)
+```
+
+
+**4. Genera 100 observaciones con distribución normal bidimensional con vector de medias el origen y matriz de covarianzas: \[ Σ = \begin{pmatrix} 10&3\\ 3 & 1 \end{pmatrix} \] Representa la nube de puntos generados, su vector de medias y su matriz de covarianzas.**
+```{r}
+library(MASS) 
+set.seed(199) #Establecemos una semilla para generar siempre los mismos números aleatorios.
+
+n <-100
+µ <- c(0,0)
+σ <-matrix(c(10,3,3,1),2,2)
+datos_ej4 <- mvrnorm(n,µ,σ)
+
+plot(datos_ej4)
+colMeans(datos_ej4)
+cov(datos_ej4)
+```
+
+*Podemos observar que la generación de los valores alatorios no coincide exactamente con el valor esperado para la media (0,0) ni para la matriz de covarianzas, aunque está cerca. Aumentando el número de datos generados, conseguiríamos una mayor precisión*
+
+
+
+**5. Para la misma distribución del apartado anterior, calcula el valor esperado teórico de la segunda coordenada respecto a la primera. Si no lo conocieras y solo dispusieras de los datos generados, ¿cómo lo estimarías? Calcula el valor resultante para el estimador que has propuesto.**
+
+Queremos calcular $\mathbb{E}(X_2|X_1)$. Para ello, utilizamos las fórmulas:
+
+\[
+µ_{2.1} = µ_{2} + Σ_{21}Σ_{11}^{-1}(X_1 - µ_1)
+\]
+\[\Sigma_{2.1} = Σ_{22} - Σ_{21}Σ_{11}^{-1}Σ_{12}\]
+
+Utilizando los datos del enunciado, y utilizando la simetría de $σ$ obtenemos:
+
+```{r}
+µ_aux = µ[1] + σ[2]*σ[1]^(-1)
+print(µ_aux)
+```
+
+
+
+```{r}
+Σ_aux= σ[4] - σ[2]*σ[1]^(-1)*σ[2]
+print(Σ_aux)
+```
+
+Con lo que $µ_{2.1} = 0.3X_1$ y $Σ_{2.1} = 0.1$
+
+**b)** Por otro lado, el valor obtenido a partir de las observaciones lo calculamos:
+
+```{r}
+σ = cov(datos_ej4)
+µ = colMeans(datos_ej4)
+µ_aux = µ[1] + σ[2]*σ[1]^(-1)
+µ_aux_2 = µ[1] + σ[2]*σ[1]^(-1)*µ[1]
+
+Σ_aux = σ[4] - σ[2]*σ[1]^(-1)*σ[2]
+
+print(c(µ_aux,µ_aux_2))
+
+print(Σ_aux)
+```
+
+Con lo que la media condicionada a partir de las observaciones sería: $µ_{2.1} = µ_{aux}X_1 - µ_{aux_2} = 0.15X_1 + 0.2$ y la varianza es 0.08.

@@ -1,5 +1,5 @@
 ---
-title: "Practica 1"
+title: "Práctica 1"
 author: "Víctor de Juan"
 date: "`r Sys.Date()`"
 output: rmarkdown::pdf_document
@@ -61,7 +61,7 @@ plot(x = datos, col=ifelse(distancias>q3,'red','black'),pch="#")
 
 #3
 
-**Representa un histograma de las distancias y compáralo con la funcion de densidad de una variable $\chi^2$ con 4 grados de libertad.**
+**Representa un histograma de las distancias y compáralo con la función de densidad de una variable $\chi^2$ con 4 grados de libertad.**
 
 Comparamos la diferencia, dependiendo de las barras de histograma elegidas:
 
@@ -102,15 +102,15 @@ colMeans(datos_ej4)
 cov(datos_ej4)
 ```
 
-*Podemos observar que la generación de los valores alatorios no coincide exactamente con el valor esperado para la media (0,0) ni para la matriz de covarianzas, aunque está cerca. Aumentando el número de datos generados, conseguiríamos una mayor precisión*
+*Podemos observar que la generación de los valores aleatorios no coincide exactamente con el valor esperado para la media (0,0) ni para la matriz de covarianzas, aunque está cerca. Aumentando el número de datos generados, conseguiríamos una mayor precisión*
 
 \newpage
 
 # 5
 
-**Para la misma distribución del apartado anterior, calcula el valor esperado teórico de la segunda coordenada respecto a la primera. Si no lo conocieras y solo dispusieras de los datos generados, ¿cómo lo estimarías? Calcula el valor resultante para el estimador que has propuesto.**
+**Para la misma distribución del apartado anterior, calcula el valor esperado teórico de la segunda coordenada respecto a la primera. Si no lo conocieras y solo dispusieras de los datos generados, ¿Cómo lo estimarías? Calcula el valor resultante para el estimador que has propuesto.**
 
-Queremos calcular $\mathbb{E}(X_2|X_1)$. Para ello, utilizamos las fórmulas:
+**a)** Queremos calcular $\mathbb{E}(X_2|X_1)$. Para ello, utilizamos las fórmulas:
 
 \[
 m_{2.1} = m_{2} + sig_{21}sig_{11}^{-1}(X_1 - m_1)

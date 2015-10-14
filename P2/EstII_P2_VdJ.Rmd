@@ -8,9 +8,10 @@ output: pdf_document
 Lo primero de todo es cargar los datos.
 
 ```{r}
-load("/home/vicdejuan/Documents/Carrera/Apuntes/Estadistica II/Practicas/P2/kevlar.RData")
-load("/home/vicdejuan/Documents/Carrera/Apuntes/Estadistica II/Practicas/P2/goles0809.RData")
-load("/home/vicdejuan/Documents/Carrera/Apuntes/Estadistica II/Practicas/P2/poblacion.RData")
+load("/home/vicdejuan/Documents/Carrera/5_Quinto/Primer Semetre/EstadisticaII/PracticasEstII/P2/kevlar.RData")
+load("kevlar.RData")
+load("/home/vicdejuan/Documents/Carrera/5_Quinto/Primer Semetre/EstadisticaII/PracticasEstII/P2/goles0809.RData")
+load("/home/vicdejuan/Documents/Carrera/5_Quinto/Primer Semetre/EstadisticaII/PracticasEstII/P2/poblacion.RData")
 ```
 
 En el *Environment* vemos que se han cargado 3 nuevos elementos: "goles0809", "poblaciones" y "kev".
@@ -80,12 +81,11 @@ En este caso, *R* da un "Warning message". Al parecer, la muestra no es suficien
 chisq.test(diferencia_goles,p=prob,simulate.p.value=TRUE)$p.value
 ```
 
-**Conclusión: ** no entiendo nada.
+**Conclusión: ** Depende del nivel de significaci\'on que queramos, aceptaremos o no la hip\'otesis.
 
 
 \newpage
 \section{Kolmogorov-Smirnov}
-**1. Claramente las distribuciones de test y de tnoest son diferentes, por lo que no podemos usar las mismas tablas para hacer el contraste en las dos situaciones. ¿En cuál de los dos casos se obtienen en media valores menores? ¿Podrías dar una razón intuitiva?**
 
 ```{r}
 ksnoest <- function(datos){
@@ -93,6 +93,27 @@ y <- ks.test(datos,pnorm)$statistic
 return(y)
 }
 ```
+
+```{r}
+ksest <- function(datos){
+mu = mean(datos)
+stdev = sd(datos)
+y <- ks.test(datos,pnorm,mu,stdev)$statistic
+return(y)
+}
+
+B <- 1000
+n <- 20
+datos <- matrix(rnorm(n*B), n)
+test <- apply(datos, 2, ksest)
+tnoest <- apply(datos, 2, ksnoest)
+
+boxplot(test,tnoest, names=c('Estimando','Sin estimar'))
+```
+**1. Claramente las distribuciones de test y de tnoest son diferentes, por lo que no podemos usar las mismas tablas para hacer el contraste en las dos situaciones. ¿En cuál de los dos casos se obtienen en media valores menores? ¿Podrías dar una razón intuitiva?**
+
+El estimado tiene valores (en media) menores. U
+
 
 \newpage
 **2. Imagina que estimamos los parámetros y usamos las tablas de la distribución del estadístico de Kolmogorov-Smirnov para hacer el contraste a nivel $\alpha$. El verdadero nivel de significación, ¿es mayor o menor que $\alpha$?**

@@ -1,0 +1,108 @@
+---
+title: "Práctica 2"
+author: "Víctor de Juan"
+date: "October 14, 2015"
+output: pdf_document
+---
+
+Lo primero de todo es cargar los datos.
+
+```{r}
+load("/home/vicdejuan/Documents/Carrera/Apuntes/Estadistica II/Practicas/P2/kevlar.RData")
+load("/home/vicdejuan/Documents/Carrera/Apuntes/Estadistica II/Practicas/P2/goles0809.RData")
+load("/home/vicdejuan/Documents/Carrera/Apuntes/Estadistica II/Practicas/P2/poblacion.RData")
+```
+
+En el *Environment* vemos que se han cargado 3 nuevos elementos: "goles0809", "poblaciones" y "kev".
+
+\section{Bondad de Ajuste}
+**1.- Contrasta si la diferencia de goles entre los dos equipos que juegan cada partido sigue una distribución uniforme.**
+
+Vamos a calcular la diferencia de goles, tomando el valor absoluto, ya que un resultado de "4-0" es igual (en cuanto a diferencia se refiere) que "0-4".
+
+```{r}
+diferencia_goles <-  table(abs(goles0809$casa - goles0809$fuera))
+diferencia_goles
+```
+
+A simple vista, podemos intuir que no va a seguir una distribción uniforme, pero vamos a realizar el **contraste de bondad de ajuste**, quedándonos con su p-valor.
+
+```{r}
+chisq.test(diferencia_goles)$p.value
+```
+
+Al no darle más argumentos, utiliza la hipótesis de equiprobabilidad para las clases, es decir, uniformidad. 
+
+Podríamos agrupar las clasees *4,5,6* en una clase *>3*:
+```{r}
+dif_goles_agrp <- rbind(c(diferencia_goles[1:4],sum(diferencia_goles[4:7])))
+colnames(dif_goles_agrp)[5] <- ">3"
+```
+Y obtenemos el p-valor del contraste:
+```{r}
+chisq.test(dif_goles_agrp)$p.value
+```
+
+Vemos que ha aumentado mucho, pero aun así es prácticamente 0, con lo que rechazamos la hipótesis a cualquier nivel de significación habitual.
+
+\newpage
+**2. Contrasta si la diferencia de goles entre los dos equipos que juegan cada partido sigue una distribución de Poisson.**
+
+Inspeccionando las frecuencias observadas, vemos que no ganamos nada agrupando las últimas columnas, ya que la Poisson decrece en la cola, y al agrupar obtenemos una crecida en la última columna.
+
+
+Construimos una poisson utilizando como parámetro $\lambda$ = *media muestral*.
+```{r}
+res = seq(0,6)
+n = sum(diferencia_goles)
+lambda = sum(res*diferencia_goles) / n
+prob = dpois(res,lambda)
+sum(prob)
+```
+
+La suma de las probabilidades no es 1, asique ajustamos chapuceramente:
+
+```{r}
+prob= c(prob[1:length(prob)-1],1-sum(prob[1:length(prob)-1]))
+sum(prob)
+```
+
+
+Ahora ya podemos hacer el contraste:
+
+```{r}
+chisq.test(diferencia_goles,p=prob)$p.value
+```
+
+En este caso, *R* da un "Warning message". Al parecer, la muestra no es suficientemente grande para que la aproximación $\chi^2$ sea correcta. Hay un argumento en *chisq.test* que calcula el p-valor con el método de MonteCarlo. El argumento es *simulate.p.value* (falso por defecto). Vamos a ver la diferencia:
+
+```{r}
+chisq.test(diferencia_goles,p=prob,simulate.p.value=TRUE)$p.value
+```
+
+**Conclusión: ** no entiendo nada.
+
+
+\newpage
+\section{Kolmogorov-Smirnov}
+**1. Claramente las distribuciones de test y de tnoest son diferentes, por lo que no podemos usar las mismas tablas para hacer el contraste en las dos situaciones. ¿En cuál de los dos casos se obtienen en media valores menores? ¿Podrías dar una razón intuitiva?**
+
+```{r}
+ksnoest <- function(datos){
+y <- ks.test(datos,pnorm)$statistic
+return(y)
+}
+```
+
+\newpage
+**2. Imagina que estimamos los parámetros y usamos las tablas de la distribución del estadístico de Kolmogorov-Smirnov para hacer el contraste a nivel $\alpha$. El verdadero nivel de significación, ¿es mayor o menor que $\alpha$?**
+
+**3. Para resolver el problema se ha estudiado la distribución en el caso de muestras normales con parámetros estimados. Es lo que se conoce como contraste de normalidad de Kolmogorov-Smirnov-Lilliefors (KSL) (véase, por ejemplo, Peña (2001), pag. 471 y Tabla 9).**
+
+**Según la tabla del estadístico KSL, el nivel crítico para $\alpha$ = 0.05 y n = 20 es 0.190. Esto significa que el porcentaje de valores test mayores que 0.19 en nuestra simulación debe ser aproximadamente del 5%. Compruébalo haciendo sum(test > 0.19)/B.**
+
+**Haz una pequeña simulación similar a la anterior para aproximar el nivel de significación del contraste KSL cuando se utiliza un valor crítico 0.12 para muestras de tamaño 40.**
+
+
+
+**4. Genera B = 10000 muestras de tamaño n = 30 de una distribución exponencial de media 1 y utilízalas para determinar en este caso la potencia aproximada del test de Kolmogorov-Smirnov con $\alpha$ = 0.05 para $H_0 : X \equiv N(1, 1)$. (El comando rexp() puede utilizarse para generar los datos exponenciales).**

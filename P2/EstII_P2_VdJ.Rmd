@@ -8,10 +8,10 @@ output: pdf_document
 Lo primero de todo es cargar los datos.
 
 ```{r}
-load("/home/vicdejuan/Documents/Carrera/5_Quinto/Primer Semetre/EstadisticaII/PracticasEstII/P2/kevlar.RData")
+setwd("/home/vicdejuan/Documents/Carrera/5_Quinto/Primer Semetre/EstadisticaII/PracticasEstII/P2/")
 load("kevlar.RData")
-load("/home/vicdejuan/Documents/Carrera/5_Quinto/Primer Semetre/EstadisticaII/PracticasEstII/P2/goles0809.RData")
-load("/home/vicdejuan/Documents/Carrera/5_Quinto/Primer Semetre/EstadisticaII/PracticasEstII/P2/poblacion.RData")
+load("poblacion.RData")
+load("goles0809.RData")
 ```
 
 En el *Environment* vemos que se han cargado 3 nuevos elementos: "goles0809", "poblaciones" y "kev".
@@ -47,6 +47,7 @@ chisq.test(dif_goles_agrp)$p.value
 Vemos que ha aumentado mucho, pero aun así es prácticamente 0, con lo que rechazamos la hipótesis a cualquier nivel de significación habitual.
 
 \newpage
+
 **2. Contrasta si la diferencia de goles entre los dos equipos que juegan cada partido sigue una distribución de Poisson.**
 
 Inspeccionando las frecuencias observadas, vemos que no ganamos nada agrupando las últimas columnas, ya que la Poisson decrece en la cola, y al agrupar obtenemos una crecida en la última columna.
@@ -61,7 +62,7 @@ prob = dpois(res,lambda)
 sum(prob)
 ```
 
-La suma de las probabilidades no es 1, asique ajustamos chapuceramente:
+La suma de las probabilidades no es 1, asique ajustamos:
 
 ```{r}
 prob= c(prob[1:length(prob)-1],1-sum(prob[1:length(prob)-1]))
@@ -81,7 +82,7 @@ En este caso, *R* da un "Warning message". Al parecer, la muestra no es suficien
 chisq.test(diferencia_goles,p=prob,simulate.p.value=TRUE)$p.value
 ```
 
-**Conclusión: ** Depende del nivel de significaci\'on que queramos, aceptaremos o no la hip\'otesis.
+**Conclusión: ** A pesar de dar 2 p-valores distintos, son bastante cercanos. Depende del nivel de significación (o confianza) que queramos, aceptaremos o no la hipótesis.
 
 
 \newpage
@@ -110,13 +111,21 @@ tnoest <- apply(datos, 2, ksnoest)
 
 boxplot(test,tnoest, names=c('Estimando','Sin estimar'))
 ```
-**1. Claramente las distribuciones de test y de tnoest son diferentes, por lo que no podemos usar las mismas tablas para hacer el contraste en las dos situaciones. ¿En cuál de los dos casos se obtienen en media valores menores? ¿Podrías dar una razón intuitiva?**
-
-El estimado tiene valores (en media) menores. U
-
 
 \newpage
+
+**1. Claramente las distribuciones de test y de tnoest son diferentes, por lo que no podemos usar las mismas tablas para hacer el contraste en las dos situaciones. ¿En cuál de los dos casos se obtienen en media valores menores? ¿Podrías dar una razón intuitiva?**
+
+El estimado tiene valores (en media) menores. Esto se debe a que al estimar con los datos de la muestra, la distancia entre la $F_0$ y la $F$ es menor (ya que la empírica se calcula con los datos de la muestra) y esa distancia es la que mide precisamente el estadístico.
+
+
+
 **2. Imagina que estimamos los parámetros y usamos las tablas de la distribución del estadístico de Kolmogorov-Smirnov para hacer el contraste a nivel $\alpha$. El verdadero nivel de significación, ¿es mayor o menor que $\alpha$?**
+
+
+Debería ser menor, ya que al tomar valores en media menores, para un mismo valor crítico, el estimado tendrá una proporción de área bajo la normal menor, provocado que el p-valor se desplace hacia valores menores.
+
+
 
 **3. Para resolver el problema se ha estudiado la distribución en el caso de muestras normales con parámetros estimados. Es lo que se conoce como contraste de normalidad de Kolmogorov-Smirnov-Lilliefors (KSL) (véase, por ejemplo, Peña (2001), pag. 471 y Tabla 9).**
 
@@ -125,5 +134,148 @@ El estimado tiene valores (en media) menores. U
 **Haz una pequeña simulación similar a la anterior para aproximar el nivel de significación del contraste KSL cuando se utiliza un valor crítico 0.12 para muestras de tamaño 40.**
 
 
+```{r}
+sum(test > 0.19) / B
+```
+Efectivamente comprobamos que da un valor muy cercano a $\alpha$.
+
+Para estimar el nivel de significación, podemos hacer el mismo procedimiento que justo antes, ejecutando el siguiente código para obtener el nivel de significación:
+
+```{r}
+n = 40
+c = 0.12
+datos <- matrix(rnorm(n*B), n)
+test <- apply(datos, 2, ksest)
+sum(test > c) / B
+```
+
+
+Este sistema tiene mucho sentido, ya que el *nivel de confianza o significación* también es el porcentaje de contrastes en los que el test puede errar.
+
 
 **4. Genera B = 10000 muestras de tamaño n = 30 de una distribución exponencial de media 1 y utilízalas para determinar en este caso la potencia aproximada del test de Kolmogorov-Smirnov con $\alpha$ = 0.05 para $H_0 : X \equiv N(1, 1)$. (El comando rexp() puede utilizarse para generar los datos exponenciales).**
+
+```{r}
+B=10000
+n=30
+datos = matrix(rexp(n*B),n)
+
+```
+
+Podemos utilizar la función knoest ligeramente modificada
+
+```{r}
+ksnoest_p <- function(datos){
+y <- ks.test(datos,pnorm,mean=1)$p.value
+return(y)
+}
+
+c = 0.05
+
+
+test <- apply(datos, 2, ksnoest_p)
+sum(test > c)/B
+```
+
+Calculamos cuántos contrastes tienen un p-valor superior al nivel de significación es cogido. En este caso es $\beta$ = `r sum(test > c)/B`, con lo que la potencia del test es: $1 - \beta$ =  `r 1-sum(test > c)/B`
+
+Esta potencia es mas grande de lo que podria gustarnos, pero tiene sentido. Mirando los histogramas de $n*B$ muestras exponenciales y otro de $n*B$ muestras normales vemos que ,salvo por la simetría, son distribuciones con una forma parecida. Al medir distancias de las distribuciones empíricas, obtendremos medidas pequeñas, salvo en la parte negativa, que será ignorada puesto que $D_n = \text{max} \{D_n^+, D_n^- \}$
+
+\section{Hoja 2, ejercicio 9}
+
+```{r}
+#----------------------------------------------------
+#
+# Una funcion para contar las frecuencias:
+# Dado un vector x, esta funcion calcula la frecuencia de valores 
+# que empiezan por 1, 2, ..., 9
+#
+#-----------------------------------------------------
+benford = function(x){
+	n = length(x)
+	proporcion = numeric(9)
+	for (i in 1:9){
+		proporcion[i] = sum(substr(x,1,1)==as.character(i))
+	}
+	return(proporcion)
+}
+
+#---------------------------------------------------------------
+# Una funcion para contar las frecuencias de los dos primeros digitos
+# Dado un vector x, esta funcion calcula la tabla de frecuencias de los valores
+# de los pares (i,j) donde i = 1, 2, ..., 9 y j = 0, 1, ..., 9
+# (solo considera valores mayores o iguales que 10)
+#
+#------------------------------------------------------------------
+benford2 = function(x){
+	x = x[x>=10]
+	n = length(x)
+	proporcion = matrix(0,9,10)
+	digitos = substr(x,1,2)
+	
+	for (i in 1:9){ 
+		for (j in 1:10){
+			proporcion[i,j] = sum(digitos==paste(i,j-1,sep=''))
+		}
+	}
+	colnames(proporcion) = paste(0:9)
+	rownames(proporcion) = paste(1:9)
+	return(proporcion)
+}
+```
+
+
+**A finales del siglo XIX el físico norteamericano Newbold descubrió que la proporción de datos que empiezan por una cifra d, p(d), en listas de datos correspondientes a muchos fenómenos naturales y demográficos es aproximadamente:**
+
+\[ p(d) = log_{10} \left( \frac{d+1}{d}\right) \]
+
+**A raíz de un artículo publicado en 1938 por Benford, la fórmula anterior se conoce como ley de Benford. El fichero poblacion.RData incluye un fichero llamado poblaciones con la población total de los municipios españoles, así como su población de hombres y de mujeres.**
+
+
+**(a) Contrasta a nivel $\alpha$ = 0,05 la hipótesis nula de que la población total se ajusta a la ley de Benford.**
+
+```{r}
+datos <- poblaciones$pobtotal
+obs <- benford(datos)
+esp = numeric(9)
+for(i in 0:9){
+  esp[i] <- log10((i+1)/i)
+}
+chisq.test(obs,p=esp)$p.value
+```
+
+El p-valor del contraste es mayor que 0.05, con lo que rechazamos la hipótesis de Benford.
+
+**(b) Repite el ejercicio pero considerando sólo los municipios de más de 1000 habitantes.**
+
+```{r}
+datos <- datos[datos > 10000]
+obs <- benford(datos)
+chisq.test(obs,p=esp)$p.value
+
+```
+Aquí el p-valor obtenido es menor que el nivel de significación buscado. Hemos aumentado mucho la proporción de datos que empiezan por 1.
+
+
+**(c) Considera las poblaciones totales (de los municipios con 10 o más habitantes) y contrasta a nivel $\alpha$ = 0,05 la hipótesis nula de que el primer dígito es independiente del segundo.**
+```{r}
+datos <- poblaciones$pobtotal
+datos <- datos[datos>10] 
+obs <- benford2(datos)
+n = length(datos)
+```
+
+Queremos contrastar independencia y utilizaremos el test de la $chi^2$. Vamos a calcular las frecuencias esperadas, suponiendo independencia:
+
+```{r}
+d = 9
+esp <- matrix(d*d,d,d)
+for (i in 0:d){
+  for (j in 0:d){
+    esp[i,j] = sum(obs[i,])*sum(obs[,j])
+  }
+}
+chisq.test(obs,p=esp)$p.value
+```
+
+Hemos modificado la función benford2 para calcular números totales y no proporciones. De esta manera, $R$ es capaz de hacer el contraste y obtenemos un p-valor muy bajo, con lo que aceptamos la hipótesis de independencia.

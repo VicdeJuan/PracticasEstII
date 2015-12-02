@@ -2,23 +2,13 @@
 title: "EstII_P3_VdJ"
 author: "Víctor de Juan"
 date: "December 2, 2015"
-output: pdf_document
+output: 
+  pdf_document: 
+    fig_caption: yes
+    keep_tex: yes
 ---
 
-
-```{r}
-pairs(trees, pch=16, main = 'Matriz de diagramas de dispersion')
-```
-
-
-
-Por ello, podemos ajustar el modelo de regresion simple
-
-
-```{r}
-pairs(trees, pch=16, main = 'Matriz de diagramas de dispersion')
-pairs(log(trees), pch=16, main = 'Matriz de diagramas de dispersion')
-```
+\section{Ajuste del modelo}
 
 **1. Contrasta la hipotesis $H_0$ : $\beta_1$ = $\beta_2$ = 0 a nivel 0.01.**
 ```{r}
@@ -27,7 +17,7 @@ summary(reg)
 ```
 
 
-El p-valor de este contraste es el del test de la $F$, que en este caso es $2.2 e^{-16}$
+El p-valor de este contraste es el del test de la $F$, que en este caso es $2.2 e^{-16}$, con lo que rechazamos la hipotesis.
 
 **2. ¿Qué valores es de esperar que tomen $\beta_1$ y $\beta_2$? ¿Se parecen los estimadores obtenidos a estos valores?**
 
@@ -38,7 +28,9 @@ log(V) = log\left(\frac{\pi h D^2}{4}\right) = log\left(\frac{\pi}{4}\right) + l
 
 Seria de esperar que $\beta_1 = 1$, $\beta_2 = 2$ y $\beta_0 = log\left(\frac{\pi}{4}\right) = -0.24$
 
-Viendo los coeficientes estimados por $R$, $\beta_1,\beta_2$ tienen cierto parecido, pero $\beta_0$ no. Que $\beta_0$ sea distinto del estimado importa poco, ya que la informacion para un 
+Viendo los coeficientes estimados por $R$, $\beta_1,\beta_2$ tienen cierto parecido, pero $\beta_0$ no. Que $\beta_0$ sea distinto del estimado importa poco, ya que la informacion para un tronco de diametro 0 y de altura 0.
+
+En el ejercicio 7 se contrasta ese "parecido" mas formalmente.
 
 **3. Calcula intervalos de confianza de nivel 0.9 para $\beta_1$ y $\beta_2$ (recuerda el comando confint).**
 
@@ -49,23 +41,38 @@ confint(reg)
 
 **4. Contrasta, a nivel 0.9, que el valor de $\beta_2$ coincide con su valor esperado según el ejercicio 2.**
 
-El valor esperado es $2$, pero el valor estimado es  `reg$coefficients[3]`. ¿Es significativamente distinto?
+*Entiendo que a nivel 0.9 significa con un nivel de confianza del 90%, ya que contrastar con $\alpha=0.9$ tiene poco sentido.*
 
-\[H_0' : \beta_2 = 2 \rightarrow H_0 : \beta_2 - 2 = 0 \]
+El valor esperado es $2$, pero el valor estimado es $1.98$. ¿Es significativamente distinto? Para ello,
 
-Entonces,
+\[
+H_0' : \beta_0 = 2 \rightarrow H_0 : \beta_0 - 2 = 0
+\]
 
 \[
 \frac{|\beta_2 - 2|}{e.t.(\beta_2)} = t
 \]
 
-Tenemos que comparar el valor: $t = `abs(reg$coefficients[3]-2)/0.07501`$ con $t_{28;0.025} = 2.09$
+Tenemos que comparar el valor: $t = |1.98-2|/0.07501 = 0.2666$ con $t_{df;\alpha/2} = t_{28;0.05} = 2.73$
 
-Como es menor, rechazamos la hipotesis nula.
+Como es menor, asumimos que no podemos rechazar la hipotesis $H_0$, con lo que tampoco rechazamos $H_0'$, con lo que $\beta_2$ **no** es significativamente distinto de 2.
 
 **5. Calcula la suma de cuadrados explicada por la regresión y la correspondiente media de cuadrados. ¿Cuántos grados de libertad le corresponden?**
 
-Le corresponde 2 grados de libertad. Ya que, pasamos de imponer 2 restricciones ($\beta_1$,$\beta_2$) para pasar de modelo completo a modelo reducido.
+```{r}
+data(trees)
+numeric_trees = cbind(1,log(trees[0:2])**1.0) # Elevamos a 1.0 para que todas 
+#   las entradas sean de tipo numeric y podamos multiplicar matricialmente.
+Y_hat = ( numeric_trees %*% reg$coefficients) 
+Y_mean = mean(log(trees[3]**1.0))
+SCR = sum((Y_hat - Y_mean)**2)
+SCR
+```
+
+La suma de cuadrados explicada por la regresion es $SCR = 77.069$
+
+Le corresponde 2 grados de libertad. Ya que ese es el numero de restricciones. Pasamos de tener 0 restricciones a imponer las 2 restricciones del modelo ($\beta_1$,$\beta_2$).
+
 
 **6. Calcula la matriz de correlaciones del vector $\hat{\beta}$.**
 
@@ -101,6 +108,84 @@ anova(reg0,reg)
 
 El p-valor es $0.5831$, con lo que podemos utilizar el modelo simple en vez de el complejo.
 
-\section{Ajuste del modelo}
+\section{Diagnostico del modelo}
+```{r}
+residuos.estandarizados <- rstandard(reg)
+valores.ajustados <- fitted(reg)
+```
 
 **1. ¿Qué se puede decir sobre si se cumplen o no las hipotesis habituales del modelo de regresión?**
+
+\paragraph{Normalidad de los residuos}
+La hipotesis de normalidad de los residuos se cumple si los datos estan alineados, es decir 
+
+```{r}
+qqnorm(residuos.estandarizados)
+qqline(residuos.estandarizados)
+```
+
+Para no hacerlo a ojo, vamos a contrastarlo con 
+
+```{r}
+ks.test(residuos.estandarizados,pnorm)$p.value
+```
+
+Con lo que aceptamos que los residuos estandarizados se distribuyen normalmente. Ademas:
+
+```{r}
+mean(residuos.estandarizados)
+var(residuos.estandarizados)
+```
+
+\paragraph{$n \geq k+2$} se cumple trivialmente. Tenemos 31 observaciones ($n=31$)y 3 atributos ($k=3$).
+
+\paragraph{Colinealidad} Para estudiarla, estudiamos cuanta informacion nos aporta una variable regresora respecto de la otra. Para ello:
+
+```{r}
+colinealidad = lm(Girth ~ Height, data = trees)
+anova(colinealidad)
+```
+
+Y vemos que el p-valor del contraste $\beta_1 = 0.00276$ es menor que los niveles habituales de $\alpha$, con lo que rechazamos la hipotesis de $\beta_1 = 0$.
+
+La suposicion de no existencia de colinealidad entre las variables regresoras no es valida.
+
+Que exista una relacion lineal total entre las variables regresoras significa que las columnas de X no son linealmente independientes, lo que provocaria que $\text{rg}(X'X) < p \rightarrow \nexists (X'X)^{-1}$.
+
+*La fuente de esta informacion son unos apuntes de la Universidad Miguel Hernandez (http://umh3067.edu.umh.es/wp-content/uploads/sites/240/2013/02/Modelos-Lineales-Aplicados-en-R.pdf)*
+
+
+**2 - Elimina la observación cuya distancia de Cook es máxima y ajusta de nuevo el modelo. ¿Hay mucha disferencia con los resultados obtenidos anteriormente?**
+
+
+```{r}
+cook <- cooks.distance(reg)
+hii <- hatvalues(reg)
+barplot(rbind(cook, hii), beside = TRUE)
+```
+
+Ahora vamos a eliminar la observacion que tiene mayor distancia de Cook:
+
+```{r}
+max = which.max(cook)
+cook_n <- cook[-c(max)]
+hii_n <- hii[-c(max)]
+barplot(rbind(cook_n, hii_n), beside = TRUE)
+
+reg_n = lm(log(Volume) ~ log(Height) + log(Girth), data = trees[-c(max),])
+summary(reg_n)
+```
+
+Comparando con el resultado obtenido anterior, 
+```{r}
+summary(reg)
+```
+
+Vemos que solo cambia el valor del estadistico $F$ pero los demas valores siguen siendo muy similares.
+
+
+**3. ¿Cómo interpretas la existencia de puntos para los que $h_{ii}$ toma valores altos y, simultáneamente, la distancia de Cook es pequeña?**
+
+Si $h_{ii}$ es alto, significa que el punto esta muy alejado de la media. Pero esto no impide que el modelo funcione bien con ese dato tambien. La distancia de Cook pequeña, significa que ese dato se ajusta bien al modelo.
+
+Para entenderlo mejor, podemos reducirnos al caso de regresion simple. Un $h_{ii}$ muy elevado quiere decir que el punto es muy lejano, pero eso no impide que la recta del modelo de regresion pase muy cerca ese punto alejado. Al pasar muy cerca la recta de el, la distancia de Cook sera muy pequeña.

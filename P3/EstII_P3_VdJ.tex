@@ -1,0 +1,533 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+    \usepackage{xltxtra,xunicode}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{{#1}}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{{#1}}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{{#1}}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{{#1}}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{{#1}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{{#1}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{{#1}}}
+\newcommand{\RegionMarkerTok}[1]{{#1}}
+\newcommand{\ErrorTok}[1]{\textbf{{#1}}}
+\newcommand{\NormalTok}[1]{{#1}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true]{hyperref}
+\fi
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={Víctor de Juan},
+            pdftitle={EstII\_P3\_VdJ},
+            colorlinks=true,
+            citecolor=blue,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\setcounter{secnumdepth}{0}
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+  \title{EstII\_P3\_VdJ}
+  \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+  \author{Víctor de Juan}
+  \preauthor{\centering\large\emph}
+  \postauthor{\par}
+  \predate{\centering\large\emph}
+  \postdate{\par}
+  \date{December 2, 2015}
+
+
+
+\begin{document}
+
+\maketitle
+
+
+\section{Ajuste del modelo}
+
+\textbf{1. Contrasta la hipotesis \(H_0\) : \(\beta_1\) = \(\beta_2\) =
+0 a nivel 0.01.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg =}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\KeywordTok{log}\NormalTok{(Volume) ~}\StringTok{ }\KeywordTok{log}\NormalTok{(Height) +}\StringTok{ }\KeywordTok{log}\NormalTok{(Girth), }\DataTypeTok{data =} \NormalTok{trees)}
+\KeywordTok{summary}\NormalTok{(reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(Volume) ~ log(Height) + log(Girth), data = trees)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.168561 -0.048488  0.002431  0.063637  0.129223 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) -6.63162    0.79979  -8.292 5.06e-09 ***
+## log(Height)  1.11712    0.20444   5.464 7.81e-06 ***
+## log(Girth)   1.98265    0.07501  26.432  < 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.08139 on 28 degrees of freedom
+## Multiple R-squared:  0.9777, Adjusted R-squared:  0.9761 
+## F-statistic: 613.2 on 2 and 28 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+El p-valor de este contraste es el del test de la \(F\), que en este
+caso es \(2.2 e^{-16}\), con lo que rechazamos la hipotesis.
+
+\textbf{2. ¿Qué valores es de esperar que tomen \(\beta_1\) y
+\(\beta_2\)? ¿Se parecen los estimadores obtenidos a estos valores?}
+
+Si el tronco fuera un cilindro perfecto, esperariamos
+\(V = \frac{\pi hD^2}{4}\). Si tomamos logaritmos: \[
+log(V) = log\left(\frac{\pi h D^2}{4}\right) = log\left(\frac{\pi}{4}\right) + log(h) + 2·log(D)
+\]
+
+Seria de esperar que \(\beta_1 = 1\), \(\beta_2 = 2\) y
+\(\beta_0 = log\left(\frac{\pi}{4}\right) = -0.24\)
+
+Viendo los coeficientes estimados por \(R\), \(\beta_1,\beta_2\) tienen
+cierto parecido, pero \(\beta_0\) no. Que \(\beta_0\) sea distinto del
+estimado importa poco, ya que la informacion para un tronco de diametro
+0 y de altura 0.
+
+En el ejercicio 7 se contrasta ese ``parecido'' mas formalmente.
+
+\textbf{3. Calcula intervalos de confianza de nivel 0.9 para \(\beta_1\)
+y \(\beta_2\) (recuerda el comando confint).}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{confint}\NormalTok{(reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                 2.5 %    97.5 %
+## (Intercept) -8.269912 -4.993322
+## log(Height)  0.698353  1.535894
+## log(Girth)   1.828998  2.136302
+\end{verbatim}
+
+\textbf{4. Contrasta, a nivel 0.9, que el valor de \(\beta_2\) coincide
+con su valor esperado según el ejercicio 2.}
+
+\emph{Entiendo que a nivel 0.9 significa con un nivel de confianza del
+90\%, ya que contrastar con \(\alpha=0.9\) tiene poco sentido.}
+
+El valor esperado es \(2\), pero el valor estimado es \(1.98\). ¿Es
+significativamente distinto? Para ello,
+
+\[
+H_0' : \beta_0 = 2 \rightarrow H_0 : \beta_0 - 2 = 0
+\]
+
+\[
+\frac{|\beta_2 - 2|}{e.t.(\beta_2)} = t
+\]
+
+Tenemos que comparar el valor: \(t = |1.98-2|/0.07501 = 0.2666\) con
+\(t_{df;\alpha/2} = t_{28;0.05} = 2.73\)
+
+Como es menor, asumimos que no podemos rechazar la hipotesis \(H_0\),
+con lo que tampoco rechazamos \(H_0'\), con lo que \(\beta_2\)
+\textbf{no} es significativamente distinto de 2.
+
+\textbf{5. Calcula la suma de cuadrados explicada por la regresión y la
+correspondiente media de cuadrados. ¿Cuántos grados de libertad le
+corresponden?}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{data}\NormalTok{(trees)}
+\NormalTok{numeric_trees =}\StringTok{ }\KeywordTok{cbind}\NormalTok{(}\DecValTok{1}\NormalTok{,}\KeywordTok{log}\NormalTok{(trees[}\DecValTok{0}\NormalTok{:}\DecValTok{2}\NormalTok{])**}\FloatTok{1.0}\NormalTok{) }\CommentTok{# Elevamos a 1.0 para que todas }
+\CommentTok{#   las entradas sean de tipo numeric y podamos multiplicar matricialmente.}
+\NormalTok{Y_hat =}\StringTok{ }\NormalTok{( numeric_trees %*%}\StringTok{ }\NormalTok{reg$coefficients) }
+\NormalTok{Y_mean =}\StringTok{ }\KeywordTok{mean}\NormalTok{(}\KeywordTok{log}\NormalTok{(trees[}\DecValTok{3}\NormalTok{]**}\FloatTok{1.0}\NormalTok{))}
+\NormalTok{SCR =}\StringTok{ }\KeywordTok{sum}\NormalTok{((Y_hat -}\StringTok{ }\NormalTok{Y_mean)**}\DecValTok{2}\NormalTok{)}
+\NormalTok{SCR}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 77.069
+\end{verbatim}
+
+La suma de cuadrados explicada por la regresion es \(SCR = 77.069\)
+
+Le corresponde 2 grados de libertad. Ya que, pasamos de imponer 2
+restricciones (\(\beta_1\),\(\beta_2\)) para pasar de modelo completo a
+modelo reducido.
+
+\textbf{6. Calcula la matriz de correlaciones del vector
+\(\hat{\beta}\).}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{matrix}\NormalTok{(}\KeywordTok{cor}\NormalTok{(trees),}\DecValTok{3}\NormalTok{,}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           [,1]      [,2]      [,3]
+## [1,] 1.0000000 0.5192801 0.9671194
+## [2,] 0.5192801 1.0000000 0.5982497
+## [3,] 0.9671194 0.5982497 1.0000000
+\end{verbatim}
+
+\textbf{7. Contrasta \(H_0\) : \(\beta_0\) = 0, \(\beta_2\) =
+\(2\beta_1\) (sumultáneamente) mediante el método de incremento relativo
+de la variabilidad.}
+
+\[ log(V) = \beta_2(log(h) + 2log(D)) \]
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x =}\StringTok{ }\KeywordTok{log}\NormalTok{(trees$Height) +}\StringTok{ }\DecValTok{2}\NormalTok{*}\StringTok{ }\KeywordTok{log}\NormalTok{(trees$Girth)}
+\NormalTok{trees_x <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(trees,x)}
+\NormalTok{reg0 =}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\KeywordTok{log}\NormalTok{(Volume) ~}\StringTok{ }\NormalTok{x -}\DecValTok{1}\NormalTok{, }\DataTypeTok{data =} \NormalTok{trees_x)}
+\end{Highlighting}
+\end{Shaded}
+
+Una vez construido el modelo simple, vamos a ver la tabla anova.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{anova}\NormalTok{(reg0,reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Model 1: log(Volume) ~ x - 1
+## Model 2: log(Volume) ~ log(Height) + log(Girth)
+##   Res.Df    RSS Df Sum of Sq      F    Pr(>F)    
+## 1     30 3.6617                                  
+## 2     28 0.1855  2    3.4763 262.41 < 2.2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+El p-valor obtenido, al ser tan pequeño nos dice que la ganancia de
+información es suficientemente grande como para tener que rechazar el
+modelo simple.
+
+Es interesante (aunque el enunciado no lo pide), vamos a contrastar el
+modelo simple añadiendole el termino independiente.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg0 =}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\KeywordTok{log}\NormalTok{(Volume) ~}\StringTok{ }\NormalTok{x, }\DataTypeTok{data =} \NormalTok{trees_x)}
+\KeywordTok{anova}\NormalTok{(reg0,reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Model 1: log(Volume) ~ x
+## Model 2: log(Volume) ~ log(Height) + log(Girth)
+##   Res.Df     RSS Df Sum of Sq      F Pr(>F)
+## 1     29 0.18751                           
+## 2     28 0.18546  1  0.002042 0.3083 0.5831
+\end{verbatim}
+
+El p-valor es \(0.5831\), con lo que podemos utilizar el modelo simple
+en vez de el complejo.
+
+\section{Diagnostico del modelo}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{residuos.estandarizados <-}\StringTok{ }\KeywordTok{rstandard}\NormalTok{(reg)}
+\NormalTok{valores.ajustados <-}\StringTok{ }\KeywordTok{fitted}\NormalTok{(reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{1. ¿Qué se puede decir sobre si se cumplen o no las hipotesis
+habituales del modelo de regresión?}
+
+\paragraph{Normalidad de los residuos}
+
+La hipotesis de normalidad de los residuos se cumple si los datos estan
+alineados, es decir
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{qqnorm}\NormalTok{(residuos.estandarizados)}
+\KeywordTok{qqline}\NormalTok{(residuos.estandarizados)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{EstII_P3_VdJ_files/figure-latex/unnamed-chunk-9-1.pdf}
+\caption{}
+\end{figure}
+
+Para no hacerlo a ojo, vamos a contrastarlo con
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ks.test}\NormalTok{(residuos.estandarizados,pnorm)$p.value}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.9730104
+\end{verbatim}
+
+Con lo que aceptamos que los residuos estandarizados se distribuyen
+normalmente. Ademas:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{mean}\NormalTok{(residuos.estandarizados)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.0008807659
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{var}\NormalTok{(residuos.estandarizados)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1.012409
+\end{verbatim}
+
+\paragraph{$n \geq k+2$}
+
+se cumple trivialmente. Tenemos 31 observaciones (\(n=31\))y 3 atributos
+(\(k=3\)).
+
+\paragraph{Colinealidad}
+
+Para estudiarla, estudiamos cuanta informacion nos aporta una variable
+regresora respecto de la otra. Para ello:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{colinealidad =}\StringTok{ }\KeywordTok{lm}\NormalTok{(Girth ~}\StringTok{ }\NormalTok{Height, }\DataTypeTok{data =} \NormalTok{trees)}
+\KeywordTok{anova}\NormalTok{(colinealidad)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Analysis of Variance Table
+## 
+## Response: Girth
+##           Df  Sum Sq Mean Sq F value   Pr(>F)   
+## Height     1  79.665  79.665  10.707 0.002758 **
+## Residuals 29 215.772   7.440                    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+Y vemos que el p-valor del contraste \(\beta_1 = 0.00276\) es menor que
+los niveles habituales de \(\alpha\), con lo que rechazamos la hipotesis
+de \(\beta_1 = 0\).
+
+La suposicion de no existencia de colinealidad entre las variables
+regresoras no es valida.
+
+Que exista una relacion lineal total entre las variables regresoras
+significa que las columnas de X no son linealmente independientes, lo
+que provocaria que
+\(\text{rg}(X'X) < p \rightarrow \nexists (X'X)^{-1}\).
+
+\emph{La fuente de esta informacion son unos apuntes de la Universidad
+Miguel Hernandez
+(\url{http://umh3067.edu.umh.es/wp-content/uploads/sites/240/2013/02/Modelos-Lineales-Aplicados-en-R.pdf})}
+
+\textbf{2 - Elimina la observación cuya distancia de Cook es máxima y
+ajusta de nuevo el modelo. ¿Hay mucha disferencia con los resultados
+obtenidos anteriormente?}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cook <-}\StringTok{ }\KeywordTok{cooks.distance}\NormalTok{(reg)}
+\NormalTok{hii <-}\StringTok{ }\KeywordTok{hatvalues}\NormalTok{(reg)}
+\KeywordTok{barplot}\NormalTok{(}\KeywordTok{rbind}\NormalTok{(cook, hii), }\DataTypeTok{beside =} \OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{EstII_P3_VdJ_files/figure-latex/unnamed-chunk-13-1.pdf}
+\caption{}
+\end{figure}
+
+Ahora vamos a eliminar la observacion que tiene mayor distancia de Cook:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{max =}\StringTok{ }\KeywordTok{which.max}\NormalTok{(cook)}
+\NormalTok{cook_n <-}\StringTok{ }\NormalTok{cook[-}\KeywordTok{c}\NormalTok{(max)]}
+\NormalTok{hii_n <-}\StringTok{ }\NormalTok{hii[-}\KeywordTok{c}\NormalTok{(max)]}
+\KeywordTok{barplot}\NormalTok{(}\KeywordTok{rbind}\NormalTok{(cook_n, hii_n), }\DataTypeTok{beside =} \OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{EstII_P3_VdJ_files/figure-latex/unnamed-chunk-14-1.pdf}
+\caption{}
+\end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{reg_n =}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\KeywordTok{log}\NormalTok{(Volume) ~}\StringTok{ }\KeywordTok{log}\NormalTok{(Height) +}\StringTok{ }\KeywordTok{log}\NormalTok{(Girth), }\DataTypeTok{data =} \NormalTok{trees[-}\KeywordTok{c}\NormalTok{(max),])}
+\KeywordTok{summary}\NormalTok{(reg_n)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(Volume) ~ log(Height) + log(Girth), data = trees[-c(max), 
+##     ])
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.17500 -0.05706  0.00624  0.05940  0.11383 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) -7.18549    0.78061  -9.205 8.14e-10 ***
+## log(Height)  1.26100    0.19984   6.310 9.39e-07 ***
+## log(Girth)   1.95816    0.07051  27.770  < 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.07565 on 27 degrees of freedom
+## Multiple R-squared:  0.9814, Adjusted R-squared:   0.98 
+## F-statistic: 712.3 on 2 and 27 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+Comparando con el resultado obtenido anterior,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(reg)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(Volume) ~ log(Height) + log(Girth), data = trees)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.168561 -0.048488  0.002431  0.063637  0.129223 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) -6.63162    0.79979  -8.292 5.06e-09 ***
+## log(Height)  1.11712    0.20444   5.464 7.81e-06 ***
+## log(Girth)   1.98265    0.07501  26.432  < 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.08139 on 28 degrees of freedom
+## Multiple R-squared:  0.9777, Adjusted R-squared:  0.9761 
+## F-statistic: 613.2 on 2 and 28 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+Vemos que solo cambia el valor del estadistico \(F\) pero los demas
+valores siguen siendo muy similares.
+
+\textbf{3. ¿Cómo interpretas la existencia de puntos para los que
+\(h_{ii}\) toma valores altos y, simultáneamente, la distancia de Cook
+es pequeña?}
+
+Si \(h_{ii}\) es alto, significa que el punto esta muy alejado de la
+media. Pero esto no impide que el modelo funcione bien con ese dato
+tambien. La distancia de Cook pequeña, significa que ese dato se ajusta
+bien al modelo.
+
+Para entenderlo mejor, podemos reducirnos al caso de regresion simple.
+Un \(h_{ii}\) muy elevado quiere decir que el punto es muy lejano, pero
+eso no impide que la recta del modelo de regresion pase muy cerca ese
+punto alejado. Al pasar muy cerca la recta de el, la distancia de Cook
+sera muy pequeña.
+
+\end{document}

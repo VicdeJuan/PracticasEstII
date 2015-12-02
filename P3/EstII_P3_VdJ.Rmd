@@ -1,0 +1,106 @@
+---
+title: "EstII_P3_VdJ"
+author: "Víctor de Juan"
+date: "December 2, 2015"
+output: pdf_document
+---
+
+
+```{r}
+pairs(trees, pch=16, main = 'Matriz de diagramas de dispersion')
+```
+
+
+
+Por ello, podemos ajustar el modelo de regresion simple
+
+
+```{r}
+pairs(trees, pch=16, main = 'Matriz de diagramas de dispersion')
+pairs(log(trees), pch=16, main = 'Matriz de diagramas de dispersion')
+```
+
+**1. Contrasta la hipotesis $H_0$ : $\beta_1$ = $\beta_2$ = 0 a nivel 0.01.**
+```{r}
+reg = lm(log(Volume) ~ log(Height) + log(Girth), data = trees)
+summary(reg)
+```
+
+
+El p-valor de este contraste es el del test de la $F$, que en este caso es $2.2 e^{-16}$
+
+**2. ¿Qué valores es de esperar que tomen $\beta_1$ y $\beta_2$? ¿Se parecen los estimadores obtenidos a estos valores?**
+
+Si el tronco fuera un cilindro perfecto, esperariamos $V = \frac{\pi hD^2}{4}$. Si tomamos logaritmos:
+\[
+log(V) = log\left(\frac{\pi h D^2}{4}\right) = log\left(\frac{\pi}{4}\right) + log(h) + 2·log(D)
+\]
+
+Seria de esperar que $\beta_1 = 1$, $\beta_2 = 2$ y $\beta_0 = log\left(\frac{\pi}{4}\right) = -0.24$
+
+Viendo los coeficientes estimados por $R$, $\beta_1,\beta_2$ tienen cierto parecido, pero $\beta_0$ no. Que $\beta_0$ sea distinto del estimado importa poco, ya que la informacion para un 
+
+**3. Calcula intervalos de confianza de nivel 0.9 para $\beta_1$ y $\beta_2$ (recuerda el comando confint).**
+
+```{r}
+confint(reg)
+```
+
+
+**4. Contrasta, a nivel 0.9, que el valor de $\beta_2$ coincide con su valor esperado según el ejercicio 2.**
+
+El valor esperado es $2$, pero el valor estimado es  `reg$coefficients[3]`. ¿Es significativamente distinto?
+
+\[H_0' : \beta_2 = 2 \rightarrow H_0 : \beta_2 - 2 = 0 \]
+
+Entonces,
+
+\[
+\frac{|\beta_2 - 2|}{e.t.(\beta_2)} = t
+\]
+
+Tenemos que comparar el valor: $t = `abs(reg$coefficients[3]-2)/0.07501`$ con $t_{28;0.025} = 2.09$
+
+Como es menor, rechazamos la hipotesis nula.
+
+**5. Calcula la suma de cuadrados explicada por la regresión y la correspondiente media de cuadrados. ¿Cuántos grados de libertad le corresponden?**
+
+Le corresponde 2 grados de libertad. Ya que, pasamos de imponer 2 restricciones ($\beta_1$,$\beta_2$) para pasar de modelo completo a modelo reducido.
+
+**6. Calcula la matriz de correlaciones del vector $\hat{\beta}$.**
+
+```{r}
+matrix(cor(trees),3,3)
+```
+
+
+**7. Contrasta $H_0$ : $\beta_0$ = 0, $\beta_2$ = $2\beta_1$ (sumultáneamente) mediante el método de incremento relativo de la variabilidad.**
+
+\[ log(V) = \beta_2(log(h) + 2log(D)) \]
+
+```{r}
+x = log(trees$Height) + 2* log(trees$Girth)
+trees_x <- cbind(trees,x)
+reg0 = lm(log(Volume) ~ x -1, data = trees_x)
+```
+
+Una vez construido el modelo simple, vamos a ver la tabla anova.
+
+```{r}
+anova(reg0,reg)
+```
+
+El p-valor obtenido, al ser tan pequeño nos dice que la ganancia de información es suficientemente grande como para tener que rechazar el modelo simple.
+
+Es interesante (aunque el enunciado no lo pide), vamos a contrastar el modelo simple añadiendole el termino independiente.
+
+```{r}
+reg0 = lm(log(Volume) ~ x, data = trees_x)
+anova(reg0,reg)
+```
+
+El p-valor es $0.5831$, con lo que podemos utilizar el modelo simple en vez de el complejo.
+
+\section{Ajuste del modelo}
+
+**1. ¿Qué se puede decir sobre si se cumplen o no las hipotesis habituales del modelo de regresión?**
